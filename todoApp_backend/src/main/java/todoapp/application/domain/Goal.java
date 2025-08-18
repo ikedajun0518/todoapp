@@ -27,8 +27,8 @@ public class Goal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "goal", nullable = false, length = 200)
-    private String goal;
+    @Column(name = "name", nullable = false, length = 200)
+    private String name;
 
     @Column(columnDefinition = "text")
     private String description;

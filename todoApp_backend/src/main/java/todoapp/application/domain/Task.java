@@ -34,8 +34,8 @@ public class Task {
     @JoinColumn(name = "goal_id", nullable = false)
     private Goal goal;
 
-    @Column(name = "task", nullable = false, length = 200)
-    private String task;
+    @Column(name = "name", nullable = false, length = 200)
+    private String name;
 
     @Column(nullable = false)
     private boolean completed = false;
