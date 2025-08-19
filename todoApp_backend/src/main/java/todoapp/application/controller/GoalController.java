@@ -41,8 +41,9 @@ public class GoalController {
     }
 
     @GetMapping
-    public Page<GoalResponse> list(@PageableDefault(sort = "updatedAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return service.list(pageable).map(this::toResponse);
+    public Page<GoalResponse> list(
+        @PageableDefault(sort = "updatedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            return service.list(pageable).map(this::toResponse);
     }
 
     @GetMapping("/{id}")
