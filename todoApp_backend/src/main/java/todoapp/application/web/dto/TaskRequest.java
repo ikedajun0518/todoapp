@@ -9,8 +9,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TaskRequest {
-    @NotBlank
-    @Size(max = 200)
+
+    private Long id;
+
+    @NotBlank(message = "{task.required}")
+    @Size(max = 200, message = "{name.max200}")
     private String name;
 
     private Boolean completed;

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import todoapp.application.domain.Task;
 import todoapp.application.service.TaskService;
+import todoapp.application.web.dto.CompletedUpdateRequest;
 import todoapp.application.web.dto.TaskRequest;
 import todoapp.application.web.dto.TaskResponse;
 
@@ -78,7 +80,7 @@ public class TaskController {
         return toResponse(service.update(taskId, req));
     }
 
-    @DeleteMapping("/task/{taskId}")
+    @DeleteMapping("/tasks/{taskId}")
     public ResponseEntity<Void> delete(@PathVariable Long taskId) {
         service.delete(taskId);
         return ResponseEntity.noContent().build();
@@ -93,5 +95,11 @@ public class TaskController {
         r.setCreatedAt(t.getCreatedAt());
         r.setUpdatedAt(t.getUpdatedAt());
         return r;
+    }
+
+    @PatchMapping("/tasks/{taskId}/completed")
+    public ResponseEntity<Void> setCompleted(@PathVariable Long taskId, @Valid @RequestBody CompletedUpdateRequest req) {
+        service.setCompleted(taskId, req.getCompleted());
+        return ResponseEntity.noContent().build();
     }
 }

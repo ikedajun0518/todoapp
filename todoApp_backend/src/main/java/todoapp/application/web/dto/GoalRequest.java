@@ -1,6 +1,10 @@
 package todoapp.application.web.dto;
 
+import java.util.List;
+
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 import lombok.Getter;
@@ -9,10 +13,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GoalRequest {
-    @NotBlank
-    @Size(max = 200)
-    private String goal;
+    @NotBlank(message = "{task.required}")
+    @Size(max = 200, message = "{name.max200}")
+    private String name;
 
-    @Size(max = 10_000)
+    @Size(max = 1000, message = "{desc.max1000}")
     private String description;
+
+    @NotEmpty(message = "{task.min1}")
+    private List<@Valid TaskRequest> tasks;
 }

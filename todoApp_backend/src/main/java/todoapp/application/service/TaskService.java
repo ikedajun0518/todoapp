@@ -72,4 +72,11 @@ public class TaskService {
         tasks.delete(t);
     }
 
+    @Transactional
+    public void setCompleted(Long taskId, boolean completed) {
+        Task t = get(taskId);
+        t.setCompleted(completed);
+        tasks.save(t);
+    }
+
 }

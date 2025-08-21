@@ -1,0 +1,139 @@
+.container {
+    max-width: 960px;
+    margin: 24px auto;
+    padding: 0 16px;
+}
+
+.toolbar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.btn {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+.list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.list th, 
+.list td {
+    border: 1px solid #eee;
+    padding: 8px;
+}
+
+.pager {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.err {
+    color: #d33;
+    margin-top: 4px;
+    font-size: 0.9em;
+}
+
+.tasks-section {
+    margin: 16px 0;
+}
+
+.tasks-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.task-input {
+    flex: 1;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.btn-danger {
+    border-color: #e39;
+    color: #e39;
+}
+
+.btn-danger:hover {
+    background: #ffe9f4;
+}
+
+.list--clickable .list__row {
+    cursor: pointer;
+
+    &:hover {
+        background: #fafafa;
+    }
+}
+
+.list__cell--name {
+    font-weight: 700;
+}
+
+.goal-detail__head {
+    display: flex;
+    justify-content: spave-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.goal-detail__title {
+    margin: 0;
+}
+
+.goal-detail__section {
+    margin: 16px 0;
+}
+
+.goal-detail__desc {
+    white-space: pre-wrap;
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-list__item {
+    margin: 6px 0;
+}
+
+.task-list__row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.task-list__label.is-done {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.meta {
+    color: #666;
+    font-size: 0.95em;
+    display: flex;
+    gap: 16px;
+}
