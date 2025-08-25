@@ -138,7 +138,7 @@ public class GoalService {
 
     @Transactional
     public List<Task> listTasks(Long goalId) {
-        return tasks.findByGoalId(goalId, Pageable.unpaged()).getContent();
+        return tasks.findByGoalIdOrderByIdAsc(goalId);
     }
 
     @Transactional
