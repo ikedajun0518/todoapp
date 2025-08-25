@@ -33,7 +33,8 @@
 
             <div class="actions">
                 <button class="btn btn-submit" type="submit">{{ isEdit ? '更新' : '作成' }}</button>
-                <router-link class="btn btn-back" to="/goals">キャンセル</router-link>
+                <router-link v-if="!isEdit" class="btn btn-back" to="/goals">キャンセル</router-link>
+                <router-link v-else class="btn btn-back" :to="'/goals/' + $route.params.id">キャンセル</router-link>
             </div>
 
             <p class="err" v-if="screenError">{{ screenError }}</p>

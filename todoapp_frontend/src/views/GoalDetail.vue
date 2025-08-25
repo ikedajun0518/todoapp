@@ -34,7 +34,7 @@
         </section>
 
         <div class="goal-detail__footer">
-            <button class="btn btn-back" @click="onBack">戻る</button>
+            <button class="btn btn-back" @click="onBack">一覧へ戻る</button>
         </div>
     </div>
 </template>
@@ -112,11 +112,7 @@
                 return v ? new Date(v).toLocaleString() : '';
             },
             onBack() {
-                if (window.history.length > 1) {
-                    this.$router.back();
-                } else {
-                    this.$router.push({ name: 'GoalList' });
-                }
+                this.$router.push({ name: 'GoalList' });
             }
         }
     })
