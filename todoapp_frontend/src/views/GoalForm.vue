@@ -1,41 +1,39 @@
 <template>
     <div>
-        <h2 v-if="isEdit">目標を編集</h2>
-        <h2 v-else>目標を作成</h2>
-
         <form @submit.prevent="submit">
-            <div>
-                <label>目標名</label>
-                <input v-model.trim="form.name" max-length="200">
+            <div class="goal-name-container">
+                <input class="input__goal-name" v-model.trim="form.name" max-length="200" placeholder="タスクの目標・タイトルを記入">
                 <p class="err" v-if="fieldError('name')">{{ fieldError('name') }}</p>
             </div>
 
             <div>
-                <label>説明</label>
-                <textarea v-model.trim="form.description" maxlength="1000"></textarea>
+                <textarea v-model.trim="form.description" maxlength="1000" placeholder="説明があれば記入"></textarea>
                 <p class="err" v-if="fieldError('description')">{{ fieldError('description') }}</p>
             </div>
 
             <div class="tasks-section">
                 <div class="tasks-header">
                     <label>タスク（1件以上必須）</label>
-                    <button type="button" class="btn" @click="addTask">＋　追加</button>
                 </div>
                 <div v-for="(t, idx) in tasks" :key="t.key" class="task-row">
                     <input
-                        v-model.trim="t.name"
-                        maxlength="200"
-                        placeholder="タスク名を入力"
-                        class="task-input"
+                    v-model.trim="t.name"
+                    maxlength="200"
+                    placeholder="タスク名を記入"
+                    class="task-input"
                     />
-                    <button type="button" @click="confirmRemove(idx)" class="btn btn-danger">削除</button>
+                    <button type="button" @click="confirmRemove(idx)" class="btn btn-danger btn-circle">ー</button>
                 </div>
                 <p class="err" v-if="taskListError">{{ taskListError }}</p>
             </div>
 
+            <div class="task-add-button-container">
+                <button type="button" class="btn btn-edit btn-circle" @click="addTask">＋</button>
+            </div>
+
             <div class="actions">
-                <button type="submit">{{ isEdit ? '更新' : '作成' }}</button>
-                <router-link to="/goals">キャンセル</router-link>
+                <button class="btn btn-submit" type="submit">{{ isEdit ? '更新' : '作成' }}</button>
+                <router-link class="btn btn-back" to="/goals">キャンセル</router-link>
             </div>
 
             <p class="err" v-if="screenError">{{ screenError }}</p>
@@ -72,7 +70,7 @@
     export default Vue.extend({
         data() {
             return {
-                isEdit: !!this.$route.params.id,
+                isEdit: false,
                 form: { name: '', description: '' } as { name: string, description?: string },
                 tasks: [] as Array<{ key: string; id?: number; name: string }>,
                 errors: [] as FieldError[],
@@ -80,6 +78,7 @@
             }
         },
         async created() {
+            this.isEdit = this.$route.name === 'GoalEdit';
             if (this.isEdit) {
                 const { data } = await http.get<GoalDetail>(`/goals/${this.$route.params.id}/detail`);
                 this.form.name = data.name;

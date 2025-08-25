@@ -4,6 +4,18 @@
     padding: 0 16px;
 }
 
+.top-container {
+    width: 100%;
+    display: flex;
+}
+
+.top-container h1 {
+    margin: 0 auto;
+    padding-left: 140px;
+    padding-bottom: 12px;
+    text-align: center;
+}
+
 .toolbar {
     display: flex;
     gap: 12px;
@@ -13,27 +25,57 @@
 
 .btn {
     padding: 6px 10px;
-    border: 1px solid #ccc;
     border-radius: 6px;
+    text-align: center;
+    border: none;
     text-decoration: none;
+    font-size: 14px;
+    &:hover {
+        opacity: 0.8;
+    }
 }
 
 .list {
     width: 100%;
-    border-collapse: collapse;
+    border: 1px solid #1f1f1f;
 }
 
-.list th, 
 .list td {
-    border: 1px solid #eee;
     padding: 8px;
 }
 
-.pager {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-top: 12px;
+.table--scroll td.list__updatedAt {
+    width: 25%;
+    text-align: right;
+    font-size: 12px;
+    color: #666;
+    padding-bottom: 0;
+}
+
+.table--scroll {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.table--scroll tbody {
+    display: block;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.table--scroll tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.table--scroll td {
+    padding: 8px 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #eee;
 }
 
 .err {
@@ -66,17 +108,40 @@
 .actions {
     display: flex;
     gap: 12px;
-    align-items: center;
+    justify-content: center;
     margin-top: 16px;
 }
 
-.btn-danger {
-    border-color: #e39;
-    color: #e39;
+.btn-submit, 
+.btn-add-goal {
+    width: 140px;
+    color: #fff;
+    font-weight: 700;
+    background: #fc6f03;
 }
 
-.btn-danger:hover {
-    background: #ffe9f4;
+.btn-edit {
+    background: #036bfc;
+    color: #fff;
+    font-weight: 700;
+}
+
+.btn-danger {
+    background: #e39;
+    color: #fff;
+    font-weight: 700;
+}
+
+.btn-circle {
+    border-radius: 50%;
+    font-weight: 1000;
+}
+
+.task-add-button-container {
+    display: flex;
+    margin: 24px 0;
+    width: 100%;
+    justify-content: center;
 }
 
 .list--clickable .list__row {
@@ -93,36 +158,48 @@
 
 .goal-detail__head {
     display: flex;
-    justify-content: spave-between;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
 }
 
+.goal-detail__actions {
+    display: flex;
+    gap: 12px;
+    width: 140px;
+
+    .btn {
+        width: 100%;
+    }
+}
+
 .goal-detail__title {
-    margin: 0;
+    margin: 0 auto;
+    padding-left: 140px;
 }
 
 .goal-detail__section {
-    margin: 16px 0;
+    margin: 32px;
 }
 
 .goal-detail__desc {
     white-space: pre-wrap;
+    text-align: center;
 }
 
 .task-list {
     list-style: none;
-    padding: 0;
+    padding: 16px 0;
     margin: 0;
 }
 
 .task-list__item {
-    margin: 6px 0;
+    margin: 12px 0;
 }
 
 .task-list__row {
     display: flex;
-    gap: 8px;
+    gap: 24px;
     align-items: center;
 }
 
@@ -136,4 +213,48 @@
     font-size: 0.95em;
     display: flex;
     gap: 16px;
+}
+
+.btn-back {
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    padding: 6px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 140px;
+    font-weight: 700;
+}
+
+.goal-detail__footer {
+    margin-top: 24px;
+    padding-top: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.goal-name-container {
+    margin: 48px 0 12px;
+}
+
+input {
+    width: calc(100% - 24px);
+    height: 32px;
+    font-size: 16px;
+    padding: 0 12px;
+}
+
+input[type=checkbox] {
+    width: 16px;
+    height: 16px;
+}
+
+.input__goal-name {
+    text-align: center;
+}
+
+textarea {
+    width: calc(100% - 24px);
+    padding: 12px;
+    min-height: 120px;
 }

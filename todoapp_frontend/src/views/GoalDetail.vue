@@ -2,16 +2,21 @@
     <div class="goal-detail">
         <div class="goal-detail__head">
             <h2 class="goal-detail__title">{{ goal?.name }}</h2>
-            <router-link class="btn" :to="{ name: 'GoalEdit', params: {id: $route.params.id} }">編集</router-link>
+            <div class="goal-detail__actions">
+                <router-link class="btn btn-edit" :to="{ name: 'GoalEdit', params: {id: $route.params.id} }">編集</router-link>
+                <button 
+                    class="btn btn-danger"
+                    :disabled="goal?.deletionProtected"
+                    :title="goal?.deletionProtected ? '削除不可の項目です' : ''"
+                    @click="onDelete">削除</button>
+            </div>
         </div>
 
         <section class="goal-detail__section">
-            <h3>説明</h3>
-            <p class="goal-detail__desc">{{ goal?.description || '(なし)' }}</p>
+            <p class="goal-detail__desc">{{ goal?.description || '(説明なし)' }}</p>
         </section>
 
         <section class="goal-detail__section">
-            <h3>タスク</h3>
             <ul class="task-list">
                 <li v-for="t in tasks" :key="t.id" class="task-list__item">
                     <label class="task-list__row">
@@ -27,6 +32,10 @@
             <div>作成: {{ dt(goal?.createdAt) }}</div>
             <div>更新: {{ dt(goal?.updatedAt) }}</div>
         </section>
+
+        <div class="goal-detail__footer">
+            <button class="btn btn-back" @click="onBack">戻る</button>
+        </div>
     </div>
 </template>
 
@@ -48,6 +57,7 @@
         description?: string;
         createdAt: string;
         updatedAt: string;
+        deletionProtected?: boolean;
         tasks: Task[];
     }
 
@@ -82,12 +92,31 @@
                 try {
                     await http.patch(`/tasks/${t.id}/completed`, { completed: next });
                     t.completed = next;
+                    await this.load();
                 } catch (e: any) {
                     this.error = e?.pretty?.message || e.message;
                 }
             },
+            async onDelete() {
+                if (!this.goal) return;
+                const ok = confirm('この目標を削除します。\n配下のタスクもすべて削除されます。よろしいですか？');
+                if (!ok) return;
+                try {
+                    await http.delete(`/goals/${this.goal.id}`);
+                    this.$router.push({ name: 'GoalList' });
+                } catch (e: any) {
+                    this.error = e?.pretty?.message || e.message || '削除に失敗しました';
+                }
+            },
             dt(v?: string) {
                 return v ? new Date(v).toLocaleString() : '';
+            },
+            onBack() {
+                if (window.history.length > 1) {
+                    this.$router.back();
+                } else {
+                    this.$router.push({ name: 'GoalList' });
+                }
             }
         }
     })

@@ -2,11 +2,15 @@ package todoapp.application.service;
 
 
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,10 +29,12 @@ import todoapp.application.web.dto.TaskRequest;
 public class GoalService {
     private final GoalRepository goals;
     private final TaskRepository tasks;
+    private final EntityManager em;
 
-    public GoalService(GoalRepository goals, TaskRepository tasks) {
+    public GoalService(GoalRepository goals, TaskRepository tasks, EntityManager em) {
         this.goals = goals;
         this.tasks = tasks;
+        this.em = em;
     }
 
     @Transactional(readOnly = true)
@@ -43,34 +49,64 @@ public class GoalService {
 
     @Transactional
     public Goal create(GoalRequest req) {
-        Goal g = new Goal();
-        g.setName(req.getName());
-        g.setDescription(req.getDescription());
-        Goal saved = goals.save(g);
+        List<TaskRequest> incoming = req.getTasks() != null ? req.getTasks() : Collections.emptyList();
+        if (incoming.isEmpty()) {
+            throw new IllegalStateException("タスクは1件以上必要です。");
+        }
+        Predicate<String> blank = s -> (s == null || s.trim().isEmpty());
+        boolean nameBlank = blank.test(req.getName());
+        boolean descBlank = blank.test(req.getDescription());
 
-        for (TaskRequest t : req.getTasks()) {
+        if (nameBlank && descBlank) {
+            final Long UNASSIGNED_GOAL_ID = 1L;
+            Goal unassigned = goals.findById(UNASSIGNED_GOAL_ID)
+                .orElseThrow(() -> new IllegalStateException("目標未設定(id = 1)が存在しません。"));
+            
+            for (TaskRequest t : incoming) {
+                Task e = new Task();
+                e.setGoal(unassigned);
+                e.setName(t.getName().trim());
+                e.setCompleted(Boolean.TRUE.equals(t.getCompleted()));
+                tasks.save(e);
+            }
+
+            goals.touch(unassigned.getId());
+            em.flush();
+            em.clear();
+            return goals.findById(unassigned.getId()).orElseThrow(() -> new IllegalStateException("初期目標が見つかりません。"));
+        }
+
+        if (!descBlank && nameBlank) {
+            throw new IllegalArgumentException("説明を入力する場合は目標名が必要です。");
+        }
+
+        Goal g = new Goal();
+        g.setName(req.getName().trim());
+        g.setDescription(descBlank ? null : req.getDescription().trim());
+        Goal saved = goals.save(g);
+        for (TaskRequest t : incoming) {
             Task e = new Task();
             e.setGoal(saved);
             e.setName(t.getName().trim());
             e.setCompleted(Boolean.TRUE.equals(t.getCompleted()));
             tasks.save(e);
         }
-
         return saved;
     }
 
     @Transactional
     public Goal update(Long id, GoalRequest req) {
-        Goal g = new Goal();
-        g.setName(req.getName());
+        Goal g = goals.findById(id).orElseThrow(() -> new IllegalArgumentException("goal not found: " + id));
+        if (req.getName() != null) g.setName(req.getName());
+        if (req.getDescription() != null) g.setDescription(req.getDescription());
         g.setDescription(req.getDescription());
-        Goal saved = goals.save(g);
 
         Map<Long, Task> existing = tasks.findByGoalId(id, Pageable.unpaged())
             .getContent().stream().collect(Collectors.toMap(Task::getId, x -> x));
         Set<Long> seen = new HashSet<>();
 
-        for (TaskRequest t: req.getTasks()) {
+        List<TaskRequest> incoming = req.getTasks() != null ? req.getTasks() : Collections.emptyList();
+        for (TaskRequest t: incoming) {
             if (t.getId() != null && existing.containsKey(t.getId())) {
                 Task e = existing.get(t.getId());
                 e.setName(t.getName().trim());
@@ -79,7 +115,7 @@ public class GoalService {
                 seen.add(t.getId());
             } else {
                 Task e = new Task();
-                e.setGoal(saved);
+                e.setGoal(g);
                 e.setName(t.getName().trim());
                 e.setCompleted(Boolean.TRUE.equals(t.getCompleted()));
                 tasks.save(e);
@@ -94,7 +130,10 @@ public class GoalService {
         if ( count < 1 ) {
             throw new IllegalStateException("タスクは1件以上必要です。");
         }
-        return saved;
+        goals.touch(id);
+        em.flush();
+        em.clear();
+        return goals.findById(id).orElseThrow(() -> new IllegalArgumentException("goal not found: " + id));
     }
 
     @Transactional

@@ -3,7 +3,6 @@ package todoapp.application.web.dto;
 import java.util.List;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
@@ -13,7 +12,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GoalRequest {
-    @NotBlank(message = "{task.required}")
     @Size(max = 200, message = "{name.max200}")
     private String name;
 

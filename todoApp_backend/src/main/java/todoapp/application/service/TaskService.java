@@ -51,17 +51,28 @@ public class TaskService {
         t.setGoal(goal);
         t.setName(req.getName());
         t.setCompleted(Boolean.TRUE.equals(req.getCompleted()));
-        return tasks.save(t);
+        Task saved = tasks.save(t);
+        goals.touch(goal.getId());
+        return saved;
     }
 
     @Transactional
     public Task update(Long taskId, TaskRequest req) {
         Task t = get(taskId);
+        Long beforeGoalId = t.getGoal() != null ? t.getGoal().getId() : null;
         if (req.getName() != null) t.setName(req.getName());
         if (req.getCompleted() != null) t.setCompleted(req.getCompleted());
         if (req.getGoalId() != null) {
             Goal g = goals.findById(req.getGoalId())
                 .orElseThrow(() -> new IllegalArgumentException("goal not found: " + req.getGoalId()));
+                t.setGoal(g);
+        }
+        Task saved = tasks.save(t);
+        if (saved.getGoal() != null) {
+            goals.touch(saved.getGoal().getId());
+        }
+        if (beforeGoalId != null && !beforeGoalId.equals(saved.getGoal().getId())) {
+            goals.touch(beforeGoalId);
         }
         return tasks.save(t);
     }
@@ -69,7 +80,11 @@ public class TaskService {
     @Transactional
     public void delete(Long taskId) {
         Task t = get(taskId);
+        Long goalId = t.getGoal() != null ? t.getGoal().getId() : null;
         tasks.delete(t);
+        if (goalId != null) {
+            goals.touch(goalId);
+        }
     }
 
     @Transactional
@@ -77,6 +92,9 @@ public class TaskService {
         Task t = get(taskId);
         t.setCompleted(completed);
         tasks.save(t);
+        if (t.getGoal() != null) {
+            goals.touch(t.getGoal().getId());
+        }
     }
 
 }
