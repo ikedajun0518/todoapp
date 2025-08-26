@@ -1,0 +1,19 @@
+-- goals
+CREATE TABLE IF NOT EXISTS goals (
+  id                  BIGSERIAL PRIMARY KEY,
+  name                VARCHAR(100)   NOT NULL,
+  description         VARCHAR(1000),
+  deletion_protected  BOOLEAN        NOT NULL DEFAULT FALSE,
+  created_at          TIMESTAMPTZ    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at          TIMESTAMPTZ    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- tasks
+CREATE TABLE IF NOT EXISTS tasks (
+  id          BIGSERIAL PRIMARY KEY,
+  goal_id     BIGINT        NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
+  name        VARCHAR(255)  NOT NULL,
+  completed   BOOLEAN       NOT NULL DEFAULT FALSE,
+  created_at  TIMESTAMPTZ   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMPTZ   NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
