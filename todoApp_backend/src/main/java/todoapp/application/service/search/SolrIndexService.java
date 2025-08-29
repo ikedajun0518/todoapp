@@ -292,7 +292,6 @@ public class SolrIndexService {
         return null;
     }
 
-    // Solrのハイライトマーカー → HTML <mark class="hl"> に変換（ついでにエスケープ）
     private static String toMarkedHtml(String snippet) {
         if (snippet == null) return null;
         String esc = HtmlUtils.htmlEscape(snippet);
