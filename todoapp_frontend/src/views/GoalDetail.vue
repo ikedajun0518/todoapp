@@ -5,9 +5,8 @@
             <div class="goal-detail__actions">
                 <router-link class="btn btn-edit" :to="{ name: 'GoalEdit', params: {id: $route.params.id} }">編集</router-link>
                 <button 
-                    class="btn btn-danger"
-                    :disabled="goal?.deletionProtected"
-                    :title="goal?.deletionProtected ? '削除不可の項目です' : ''"
+                    v-if="!goal?.deletionProtected"
+                    class="btn btn-danger"                    
                     @click="onDelete">削除</button>
             </div>
         </div>

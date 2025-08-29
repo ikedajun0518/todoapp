@@ -4,6 +4,10 @@
     padding: 0 16px;
 }
 
+.form-container {
+    text-align: center;
+}
+
 .top-container {
     width: 100%;
     display: flex;

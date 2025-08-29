@@ -1,14 +1,20 @@
 <template>
-    <div>
+    <div class="form-container">
         <form @submit.prevent="submit">
-            <div class="goal-name-container">
+            <div v-if="!deletionProtected" class="goal-name-container">
                 <input class="input__goal-name" v-model.trim="form.name" max-length="200" placeholder="タスクの目標・タイトルを記入">
                 <p class="err" v-if="fieldError('name')">{{ fieldError('name') }}</p>
             </div>
+            <div v-else>
+                <h2>{{ form.name }}</h2>
+            </div>
 
-            <div>
+            <div v-if="!deletionProtected">
                 <textarea v-model.trim="form.description" maxlength="1000" placeholder="説明があれば記入"></textarea>
                 <p class="err" v-if="fieldError('description')">{{ fieldError('description') }}</p>
+            </div>
+            <div v-else>
+                <div>{{ form.description }}</div>
             </div>
 
             <div class="tasks-section">
@@ -50,6 +56,7 @@
         id: number;
         name: string;
         description?: string;
+        deletionProtected?: boolean;
         tasks: {
             id: number;
             name: string;
@@ -76,6 +83,7 @@
                 tasks: [] as Array<{ key: string; id?: number; name: string }>,
                 errors: [] as FieldError[],
                 submitting: false,
+                deletionProtected: false,
             }
         },
         async created() {
@@ -84,6 +92,7 @@
                 const { data } = await http.get<GoalDetail>(`/goals/${this.$route.params.id}/detail`);
                 this.form.name = data.name;
                 this.form.description = data.description || '';
+                this.deletionProtected = data.deletionProtected || false;
                 this.tasks = (data.tasks || []).map(t => ({key: `ex-${t.id}`, id: t.id, name: t.name}));
                 if (this.tasks.length === 0) this.tasks = [{ key: 'new-0', name: ''}];
             } else {
@@ -100,7 +109,7 @@
                 const bad = this.tasks.find(t => !t.name || t.name.trim().length ===0);
                 if (bad) return '空白のみの入力不可'
                 return null;
-            }
+            },
         },
         methods: {
             fieldError(n: string): string {
