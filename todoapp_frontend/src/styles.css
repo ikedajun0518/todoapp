@@ -97,6 +97,7 @@
     color: #d33;
     margin-top: 4px;
     font-size: 0.9em;
+    text-align: left;
 }
 
 .tasks-section {
@@ -109,7 +110,7 @@
     align-items: center;
 }
 
-.task-row {
+.task-input-container {
     display: flex;
     gap: 8px;
     align-items: center;
