@@ -1,5 +1,5 @@
 INSERT INTO goals (id, name, description, deletion_protected)
-VALUES (1, 'чЫоциЩцЬкшинхоЪ', 'уВ╖уВ╣уГЖуГачФиуБоцЧвхоЪчЫоциЩ', TRUE)
+VALUES (1, 'Ц┌ХWЦвР▌Тш', 'ГVГXГeГАЧpВ╠К∙ТшЦ┌ХW', TRUE)
 ON CONFLICT DO NOTHING;
 
 SELECT setval(

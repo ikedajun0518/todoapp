@@ -7,13 +7,24 @@
 .top-container {
     width: 100%;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .top-container h1 {
-    margin: 0 auto;
-    padding-left: 140px;
-    padding-bottom: 12px;
-    text-align: center;
+    margin: 0;
+    padding-bottom: 6px;
+    padding-right: 140px;
+}
+
+.search-box {
+    width: auto;
+    max-width: 250px;
+    padding: 6px
+}
+
+.search-box__input {
+    width: 100%;
 }
 
 .toolbar {
@@ -257,4 +268,10 @@ textarea {
     width: calc(100% - 24px);
     padding: 12px;
     min-height: 120px;
+}
+
+.task-hits__item {
+    list-style: none;
+    font-weight: 400;
+    font-size: 14px;
 }

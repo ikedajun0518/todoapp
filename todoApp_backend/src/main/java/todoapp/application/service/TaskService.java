@@ -9,6 +9,7 @@ import todoapp.application.domain.Goal;
 import todoapp.application.domain.Task;
 import todoapp.application.repository.GoalRepository;
 import todoapp.application.repository.TaskRepository;
+import todoapp.application.service.search.SolrIndexService;
 import todoapp.application.web.dto.TaskRequest;
 
 @Service
@@ -18,10 +19,12 @@ public class TaskService {
 
     private final TaskRepository tasks;
     private final GoalRepository goals;
+    private final SolrIndexService solr;
 
-    public TaskService(TaskRepository tasks, GoalRepository goals) {
+    public TaskService(TaskRepository tasks, GoalRepository goals, SolrIndexService solr) {
         this.tasks = tasks;
         this.goals = goals;
+        this.solr = solr;
     }
 
     @Transactional(readOnly = true)
@@ -53,6 +56,8 @@ public class TaskService {
         t.setCompleted(Boolean.TRUE.equals(req.getCompleted()));
         Task saved = tasks.save(t);
         goals.touch(goal.getId());
+        solr.indexTask(saved);
+        goals.findById(goal.getId()).ifPresent(solr::indexGoal);
         return saved;
     }
 
@@ -74,16 +79,23 @@ public class TaskService {
         if (beforeGoalId != null && !beforeGoalId.equals(saved.getGoal().getId())) {
             goals.touch(beforeGoalId);
         }
-        return tasks.save(t);
+        solr.indexTask(saved);
+        if(saved.getGoal() != null) goals.findById(saved.getGoal().getId()).ifPresent(solr::indexGoal);
+        if (beforeGoalId != null && !beforeGoalId.equals(saved.getGoal().getId())) {
+            goals.findById(beforeGoalId).ifPresent(solr::indexGoal);
+        }
+        return saved;
     }
 
     @Transactional
     public void delete(Long taskId) {
         Task t = get(taskId);
         Long goalId = t.getGoal() != null ? t.getGoal().getId() : null;
+        solr.deleteTask(taskId);
         tasks.delete(t);
         if (goalId != null) {
             goals.touch(goalId);
+            goals.findById(goalId).ifPresent(solr::indexGoal);
         }
     }
 
@@ -91,9 +103,11 @@ public class TaskService {
     public void setCompleted(Long taskId, boolean completed) {
         Task t = get(taskId);
         t.setCompleted(completed);
-        tasks.save(t);
+        Task saved = tasks.save(t);
         if (t.getGoal() != null) {
             goals.touch(t.getGoal().getId());
+            solr.indexTask(saved);
+            goals.findById(t.getGoal().getId()).ifPresent(solr::indexGoal);
         }
     }
 

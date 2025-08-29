@@ -22,6 +22,7 @@ import todoapp.application.domain.Goal;
 import todoapp.application.domain.Task;
 import todoapp.application.repository.GoalRepository;
 import todoapp.application.repository.TaskRepository;
+import todoapp.application.service.search.SolrIndexService;
 import todoapp.application.web.dto.GoalRequest;
 import todoapp.application.web.dto.TaskRequest;
 
@@ -30,11 +31,13 @@ public class GoalService {
     private final GoalRepository goals;
     private final TaskRepository tasks;
     private final EntityManager em;
+    private final SolrIndexService solr;
 
-    public GoalService(GoalRepository goals, TaskRepository tasks, EntityManager em) {
+    public GoalService(GoalRepository goals, TaskRepository tasks, EntityManager em, SolrIndexService solr) { 
         this.goals = goals;
         this.tasks = tasks;
         this.em = em;
+        this.solr = solr;
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +76,11 @@ public class GoalService {
             goals.touch(unassigned.getId());
             em.flush();
             em.clear();
-            return goals.findById(unassigned.getId()).orElseThrow(() -> new IllegalStateException("初期目標が見つかりません。"));
+            
+            Goal reloaded = goals.findById(unassigned.getId())
+                .orElseThrow(() -> new IllegalStateException("初期目標が見つかりません。"));
+            solr.indexGoalWithTasks(reloaded, tasks.findByGoalIdOrderByIdAsc(unassigned.getId()));
+            return reloaded;
         }
 
         if (!descBlank && nameBlank) {
@@ -91,6 +98,8 @@ public class GoalService {
             e.setCompleted(Boolean.TRUE.equals(t.getCompleted()));
             tasks.save(e);
         }
+
+        solr.indexGoalWithTasks(saved, tasks.findByGoalIdOrderByIdAsc(saved.getId()));
         return saved;
     }
 
@@ -99,7 +108,6 @@ public class GoalService {
         Goal g = goals.findById(id).orElseThrow(() -> new IllegalArgumentException("goal not found: " + id));
         if (req.getName() != null) g.setName(req.getName());
         if (req.getDescription() != null) g.setDescription(req.getDescription());
-        g.setDescription(req.getDescription());
 
         Map<Long, Task> existing = tasks.findByGoalId(id, Pageable.unpaged())
             .getContent().stream().collect(Collectors.toMap(Task::getId, x -> x));
@@ -133,7 +141,9 @@ public class GoalService {
         goals.touch(id);
         em.flush();
         em.clear();
-        return goals.findById(id).orElseThrow(() -> new IllegalArgumentException("goal not found: " + id));
+        Goal reloaded = goals.findById(id).orElseThrow(() -> new IllegalArgumentException("goal not found: " + id));
+        solr.indexGoalWithTasks(reloaded, tasks.findByGoalIdOrderByIdAsc(id));
+        return reloaded;
     }
 
     @Transactional
@@ -147,6 +157,7 @@ public class GoalService {
         if (g.isDeletionProtected()) {
             throw new IllegalStateException("この目標は削除できません。");
         }
+        solr.deleteByGoalId(id);
         goals.delete(g);
     }
 }
