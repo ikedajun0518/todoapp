@@ -17,7 +17,7 @@ npm run dev
 
 
 Solr設定
-todoApp\solrで実行
+todoApp\solrで実行(PowerShell)
 
 Solr起動
 bin\solr.cmd start -p 8983
