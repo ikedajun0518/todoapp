@@ -7,6 +7,8 @@
           v-model.trim="form.name"
           maxlength="200"
           placeholder="タスクの目標・タイトルを記入"
+          :area-invalid="!!fieldError('name')"
+          @input="clearFieldError('name')"
         />
         <p class="err" v-if="fieldError('name')">{{ fieldError('name') }}</p>
       </div>
@@ -19,6 +21,8 @@
           v-model.trim="form.description"
           maxlength="1000"
           placeholder="説明があれば記入"
+          :area-invalid="!!fieldError('description')"
+          @input="clearFieldError('desciption')"
         ></textarea>
         <p class="err" v-if="fieldError('description')">{{ fieldError('description') }}</p>
       </div>
@@ -96,6 +100,7 @@ export default Vue.extend({
       submitting: false,
       deletionProtected: false,
       taskErrors: {} as Record<string, string>,
+      originalHadName: false,
     };
   },
   async created() {
@@ -105,6 +110,7 @@ export default Vue.extend({
       this.form.name = data.name;
       this.form.description = data.description || '';
       this.deletionProtected = data.deletionProtected || false;
+      this.originalHadName = !!(data.name && data.name.trim().length > 0);
       this.tasks = (data.tasks || []).map(t => ({ key: `ex-${t.id}`, id: t.id, name: t.name }));
       if (this.tasks.length === 0) this.tasks = [{ key: 'new-0', name: '' }];
     } else {
@@ -115,6 +121,9 @@ export default Vue.extend({
     fieldError(n: string): string {
       const hit = this.errors.find(e => e.field === n);
       return hit ? hit.message : '';
+    },
+    clearFieldError(n: string) {
+        this.errors = this.errors.filter(e => e.field !== n);
     },
     addTask() {
       const key = `new-${Date.now()}-${Math.random()}`;
@@ -166,23 +175,43 @@ export default Vue.extend({
         this.errors.push({ field: null, message: body.message });
       }
     },
-    async submit() {
-      this.errors = [];
-      this.taskErrors = {};
+    validationForm(): boolean {
+        this.errors = [];
+        this.taskErrors = {};
 
-      if (this.tasks.length < 1) {
-        this.errors = [{ field: null, message: 'タスクは1件以上必要です' }];
-        return;
-      }
-      let hasAnyError = false;
-      this.tasks.forEach(t => {
-        const msg = this.localTaskError(t.name);
-        if (msg) {
-          this.taskErrors[t.key] = msg;
-          hasAnyError = true;
+        if (this.tasks.length < 1) {
+            this.errors.push({ field: null, message: 'タスクは1件以上必要です'});
         }
-      });
-      if (hasAnyError) return;
+        let tasksOk = true;
+
+        this.tasks.forEach(t => {
+            const msg = this.localTaskError(t.name);
+            if (msg) {
+                this.taskErrors[t.key] = msg;
+                tasksOk = false;
+            }
+        });
+
+        if (!this.deletionProtected) {
+            const name = (this.form.name || '').trim();
+            const desc = (this.form.description || '').trim();
+
+            if (desc && !name) {
+                this.errors.push({ field: 'name', message: '説明がある場合は目標名が必要です。'});
+            }
+
+            if (this.isEdit && this.originalHadName && !name) {
+                this.errors.push({ field: 'name', message: '一度設定した目標名は空にできません。'});
+            }
+
+            if (name.length > 200) this.errors.push({ field: 'name', message: '200文字以内で入力してください。' });
+            if (desc.length > 1000) this.errors.push({ field: 'description', message: '1000文字以内で入力してください。' });
+        }
+
+        return this.errors.length === 0 && tasksOk;
+    },
+    async submit() {
+      if (!this.validationForm()) return;
 
       const payload = {
         name: this.form.name,
