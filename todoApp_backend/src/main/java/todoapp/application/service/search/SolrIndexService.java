@@ -226,7 +226,6 @@ public class SolrIndexService {
             q.setRows(rows > 0 ? rows : defaultRows);
             q.addSort("updated_at_dt", SolrQuery.ORDER.desc);
 
-            // 返却フィールドとハイライト設定
             q.setFields("id", "type", "goal_id_l", "updated_at_dt", "goal_name_ja", "task_name_ja");
             q.setParam(HighlightParams.HIGHLIGHT, "true");
             q.setParam(HighlightParams.FIELDS, "goal_name_ja,task_name_ja");

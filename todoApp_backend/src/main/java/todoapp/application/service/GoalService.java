@@ -54,7 +54,7 @@ public class GoalService {
     public Goal create(GoalRequest req) {
         List<TaskRequest> incoming = req.getTasks() != null ? req.getTasks() : Collections.emptyList();
         if (incoming.isEmpty()) {
-            throw new IllegalStateException("タスクは1件以上必要です。");
+            throw new IllegalStateException("At least one task is required.");
         }
         Predicate<String> blank = s -> (s == null || s.trim().isEmpty());
         boolean nameBlank = blank.test(req.getName());
@@ -63,7 +63,7 @@ public class GoalService {
         if (nameBlank && descBlank) {
             final Long UNASSIGNED_GOAL_ID = 1L;
             Goal unassigned = goals.findById(UNASSIGNED_GOAL_ID)
-                .orElseThrow(() -> new IllegalStateException("目標未設定(id = 1)が存在しません。"));
+                .orElseThrow(() -> new IllegalStateException("Unassigned goal (id = 1) does not exists."));
             
             for (TaskRequest t : incoming) {
                 Task e = new Task();
@@ -78,13 +78,13 @@ public class GoalService {
             em.clear();
             
             Goal reloaded = goals.findById(unassigned.getId())
-                .orElseThrow(() -> new IllegalStateException("初期目標が見つかりません。"));
+                .orElseThrow(() -> new IllegalStateException("Initial goal not found."));
             solr.indexGoalWithTasks(reloaded, tasks.findByGoalIdOrderByIdAsc(unassigned.getId()));
             return reloaded;
         }
 
         if (!descBlank && nameBlank) {
-            throw new IllegalArgumentException("説明を入力する場合は目標名が必要です。");
+            throw new IllegalArgumentException("Goal name is required when description is provided.");
         }
 
         Goal g = new Goal();
@@ -136,7 +136,7 @@ public class GoalService {
 
         long count = tasks.findByGoalId(id, Pageable.unpaged()).getTotalElements();
         if ( count < 1 ) {
-            throw new IllegalStateException("タスクは1件以上必要です。");
+            throw new IllegalStateException("At least one task is required.");
         }
         goals.touch(id);
         em.flush();
@@ -155,7 +155,7 @@ public class GoalService {
     public void delete(Long id) {
         Goal g = get(id);
         if (g.isDeletionProtected()) {
-            throw new IllegalStateException("この目標は削除できません。");
+            throw new IllegalStateException("This goal cannot be deleted.");
         }
         solr.deleteByGoalId(id);
         goals.delete(g);
