@@ -26,5 +26,9 @@ bin\solr.cmd start -p 8983
 bin\solr.cmd create -c todoapp
 
 スキーマ(PowerShell)
-Setup-SolrSchema.ps1実行でスキーマ設定は完了
+セキュリティエラー解消
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+
+スキーマ設定
+Setup-SolrSchema.ps1
 
